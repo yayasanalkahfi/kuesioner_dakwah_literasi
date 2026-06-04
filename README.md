@@ -1,2 +1,2 @@
-# kuesioner_dakwah_literasi
+# survey_pelajar_dan_alumni
 Survey Pelajar dan Alumni
