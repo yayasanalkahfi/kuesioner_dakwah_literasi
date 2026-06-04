@@ -120,7 +120,6 @@
     </div>
     <!-- Application Script Engine -->
     <script>
-        const API_URL = "https://script.google.com/macros/s/AKfycbx80ov1g-Ixog-7RqBDDlrKvRJGT75ZAYP7h1Uh4Wu29vrbutMfba2SJncY7jp66ZRLYA/exec";
         const steps = {
             WELCOME: 0,
             SEC1_Q1: 1,
@@ -494,6 +493,7 @@
             }, 300);
         }
         // Save form inputs of current card to Javascript State
+        const API_URL = "https://script.google.com/macros/s/AKfycbx80ov1g-Ixog-7RqBDDlrKvRJGT75ZAYP7h1Uh4Wu29vrbutMfba2SJncY7jp66ZRLYA/exec";
         function saveStepData() {
             if (currentStep === steps.WELCOME) {
                 formData.nama = document.getElementById('input_nama').value.trim();
