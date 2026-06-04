@@ -1,2 +1,2 @@
 # kuesioner_dakwah_literasi
-Kuesioner Dakwah dan Literasi
+Survey Pelajar dan Alumni
