@@ -120,6 +120,11 @@
     </div>
     <!-- Application Script Engine -->
     <script>
+        // =======================================================================
+        // GANTI URL DI BAWAH INI DENGAN URL WEB APP GOOGLE APPS SCRIPT ANDA
+        // =======================================================================
+        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbx80ov1g-Ixog-7RqBDDlrKvRJGT75ZAYP7h1Uh4Wu29vrbutMfba2SJncY7jp66ZRLYA/exec";
+        
         const steps = {
             WELCOME: 0,
             SEC1_Q1: 1,
@@ -363,7 +368,6 @@
                             <div class="flex flex-col md:flex-row gap-5 items-start">
                                 <!-- Area Gambar: Mengambil lebar ~25% pada layar desktop (w-1/4) -->
                                 <div class="w-full md:w-1/4 flex-shrink-0 flex justify-center mt-1">
-                                    <!-- SILAKAN GANTI KODE BASE64 DI BAWAH INI DENGAN BASE64 GAMBAR ANDA -->
                                     <img src="ulbab-x.png"
                                          alt="Buku Kompilasi Buletin Volume X" 
                                          class="w-2/5 md:w-full max-w-[120px] rounded-lg shadow-sm border border-slate-200 object-cover">
@@ -493,7 +497,6 @@
             }, 300);
         }
         // Save form inputs of current card to Javascript State
-        const API_URL = "https://script.google.com/macros/s/AKfycbx80ov1g-Ixog-7RqBDDlrKvRJGT75ZAYP7h1Uh4Wu29vrbutMfba2SJncY7jp66ZRLYA/exec";
         function saveStepData() {
             if (currentStep === steps.WELCOME) {
                 formData.nama = document.getElementById('input_nama').value.trim();
@@ -635,8 +638,14 @@
             document.getElementById('nextBtn').classList.remove('hidden');
             renderCard();
         }
-        // Submitting data directly via Google Apps Script integration hooks
+
+        // Submitting data via Fetch API (Vercel / GitHub Pages ready)
         function submitFinalData() {
+            if (WEB_APP_URL === "PASANG_URL_WEB_APP_GOOGLE_SCRIPT_ANDA_DI_SINI") {
+                showError("Sistem belum diatur: Mohon konfigurasikan URL Web App (WEB_APP_URL) pada file HTML Anda terlebih dahulu.");
+                return;
+            }
+
             const nextBtn = document.getElementById('nextBtn');
             const prevBtn = document.getElementById('prevBtn');
             
@@ -644,29 +653,47 @@
             nextBtn.disabled = true;
             prevBtn.disabled = true;
             nextBtn.innerHTML = `<i class="fa-solid fa-spinner animate-spin"></i> Mengirim...`;
-            // Detect Google Apps Script execution context
-            if (typeof google !== 'undefined' && google.script && google.script.run) {
-                google.script.run
-                    .withSuccessHandler(function() {
-                        currentStep = steps.SUCCESS;
-                        renderCard();
-                    })
-                    .withFailureHandler(function(error) {
-                        showError("Gagal mengirim data: " + error.message);
-                        nextBtn.disabled = false;
-                        prevBtn.disabled = false;
-                        nextBtn.innerHTML = `Kirim Jawaban <i class="fa-solid fa-paper-plane"></i>`;
-                    })
-                    .submitForm(formData);
-            } else {
-                // Mock execution fallback for browsers/standalone previews
-                console.log("Mocking Google Apps Script submit payload:", formData);
-                setTimeout(() => {
-                    currentStep = steps.SUCCESS;
-                    renderCard();
-                }, 1500);
-            }
+
+            // Pemetaan (Mapping) object formData bawaan HTML Anda ke variabel yang diterima oleh Code.gs
+            const payload = {
+                nama: formData.nama,
+                sekolah: formData.asal_sekolah,
+                kelas: formData.kelas,
+                p1_1: formData.sec1_q1,
+                p1_2: formData.sec1_q2,
+                p1_3: formData.sec1_q3,
+                p1_4: formData.sec1_q4,
+                p1_5: 'Rp ' + formatToIDR(formData.sec1_q5),
+                p2_1: formData.sec2_q1,
+                p2_2: formData.sec2_q2,
+                p2_3: formData.sec2_q3,
+                p2_4: 'Rp ' + formatToIDR(formData.sec2_q4),
+                p2_5: formData.sec2_q5,
+                p2_6: 'Rp ' + formatToIDR(formData.sec2_q6)
+            };
+
+            // Menjalankan Fetch API 
+            fetch(WEB_APP_URL, {
+                method: "POST",
+                mode: "no-cors", 
+                headers: {
+                    "Content-Type": "text/plain" 
+                },
+                body: JSON.stringify(payload)
+            })
+            .then(() => {
+                // Berhasil (Pada mode no-cors, respon langsung dianggap success)
+                currentStep = steps.SUCCESS;
+                renderCard();
+            })
+            .catch(error => {
+                showError("Gagal mengirim data. Pastikan koneksi internet Anda stabil: " + error.toString());
+                nextBtn.disabled = false;
+                prevBtn.disabled = false;
+                nextBtn.innerHTML = `Kirim Jawaban <i class="fa-solid fa-paper-plane"></i>`;
+            });
         }
+        
         // Window load initial rendering
         window.onload = function() {
             renderCard();
